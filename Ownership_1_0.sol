@@ -1,6 +1,6 @@
 contract Ownership {
 
-    mapping(address => address)public owner;
+    mapping(address => address[])public owner;
     mapping(address => bool)public isModule;
     address public master;
     
@@ -8,7 +8,7 @@ contract Ownership {
     
     function setOwner(address _owner,address happybox)public returns(bool){
         require((isModule[msg.sender])||(msg.sender==master));
-        owner[_owner]=happybox;
+        owner[_owner].push(happybox);
         return true;
     }
     
@@ -22,6 +22,10 @@ contract Ownership {
         require((isModule[msg.sender])||(msg.sender==master));
         isModule[tkn]=true;
         return true;
+    }
+    
+    function owned(address _owner,uint i)public view returns(address,uint){
+        return (owner[_owner][i],owner[_owner].length);
     }
 
     
