@@ -23,4 +23,8 @@ contract Book {
         return true;
     }
     
+    function door(uint i)public view returns(address,uint){
+        return (doors[i],doors.length);
+    }
+    
 }
