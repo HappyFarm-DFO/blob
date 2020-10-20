@@ -1,0 +1,264 @@
+contract ERC20{
+    function allowance(address owner, address spender) external view returns (uint256){}
+    function transfer(address recipient, uint256 amount) external returns (bool){}
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool){}
+    function balanceOf(address account) external view returns (uint256){}
+}
+
+contract HappyBox {
+    
+}
+
+contract PriceList{}
+
+
+contract pairPriceList{}
+
+contract PairMin {
+    
+    uint8 public code=9;
+    address public vault;
+    HappyBox public box;
+    pairPriceList public prices;
+
+
+    
+    constructor(address vlt, address prcs, address gftr) public{
+        vault=vlt;
+        prices=pairPriceList(prcs);
+        box=HappyBox(gftr);
+    }
+    
+    function buy(address tkn1,address tkn2,uint amount,address ref)public returns(bool){
+        uint tot=amount*prices.price(tkn1,tkn2)*1000000000000000000/1000000;
+        util(tkn1,tkn2,amount,ref,tot);
+        return true;
+    } 
+    
+    function sell(address tkn1,address tkn2,uint amount,address ref)public returns(bool){
+        uint tot=amount*1000000000000000000/prices.price(tkn1,tkn2)*1000000;
+        util(tkn2,tkn1,amount,ref,tot);
+        return true;
+    } 
+    
+    function util(address tkn1,address tkn2,uint amount,address ref,uint tot)internal returns(bool){
+        require(ERC20(tkn2).transferFrom(msg.sender,address(this),amount));
+        require(ERC20(tkn2).transfer(address(box),amount/250));
+        require(ERC20(tkn2).transfer(ref,amount/1000));
+        require(box.ship(tkn1,tot,sender));
+        return true;
+    }
+    
+    function swapBuy(address tkn1,address tkn2,uint amount,address _box,address ref)public returns(bool){
+        uint tot=amount*prices.price(tkn1,tkn2)*1000000000000000000/1000000;
+        utilSwap(_box,tkn1,tkn2,amount,ref,tot);
+         require(mainPair.swapBuy(tkn1,tkn2,amount,_box,ref));
+        return true;
+    } 
+     
+    function swapSell(address tkn1,address tkn2,uint amount,address _box,address ref)public returns(bool){
+        uint tot=amount*1000000000000000000/prices.price(tkn1,tkn2)*1000000;
+        utilSwap(_box,tkn2,tkn1,amount,ref,tot);
+        return true;
+    }
+    
+    function utilSwap(address _box,address tkn1,address tkn2,uint amount,address ref,uint tot)internal returns(bool){
+        require(HappyBox(_box).master()==msg.sender);
+        swapper.swap(_box,tkn1,tot,box);
+        require(box.ship(tkn1,tot,sender));
+        return true;
+    }
+    
+    function swap(address _boxfrom,address tkn,uint amount,address _boxto)internal returns(bool){
+        //require(MVMCertList(0x38559bF5BCCF08831fFAC85E858BCAfE85609Ba2).isModule(msg.sender));
+        require(HappyBox(_boxfrom).ship(tkn,amount,_boxto));
+        return true;
+    }
+    
+    function send(address tkn,address recipient) public {
+        ERC20 t=ERC20(tkn);
+        t.transfer(payable(vault),t.balanceOf(address(this)));
+    }
+    
+}
+
+
+contract Book {
+
+    address[] public doors;
+    mapping(address => bool)public isModule;
+    mapping(address => bool)public isDoor;
+    address public master;
+    
+    constructor () public { master=msg.sender; }
+    
+    function setDoor(address tkn)public returns(bool){
+        require((isModule[msg.sender])||(msg.sender==master));
+        if(!isDoor[tkn]){
+        doors.push(tkn);
+        isDoor[tkn]=true;
+        }
+        return true;
+    }
+    
+    function setModule(address tkn)public returns(bool){
+        require((isModule[msg.sender])||(msg.sender==master));
+        isModule[tkn]=true;
+        return true;
+    }
+    
+    function setMaster(address mstr)public returns(bool){
+        require((msg.sender==master)||(isModule[msg.sender]));
+        master=mstr;
+        return true;
+    }
+    
+    function door(uint i)public view returns(address,uint){
+        return (doors[i],doors.length);
+    }
+    
+    
+}
+
+contract Ticket_1_0_Factory{
+}
+
+contract Freebies_1_0_Factory{
+    
+        uint public code=6;
+        
+        function install(address happyBox,address priceList)public returns(bool){
+            address freeb=address(new Freebies(priceList,happyBox));
+            require(MVMCertList(0x38559bF5BCCF08831fFAC85E858BCAfE85609Ba2).setModule(freeb));
+            require(HappyBox(happyBox).set(freeb,false,1));
+            return true;
+        }
+        
+        function install(address happyBox)public returns(bool){
+            require(HappyBox(happyBox).master()==msg.sender);
+            priceList prices=new priceList(msg.sender);
+            address freeb=address(new Freebies(address(prices),happyBox));
+            require(Book(0x8FDc27b2F4CC4619f3dCf5170B14E4E854a5032e).setDoor(freeb));
+            require(MVMCertList(0x38559bF5BCCF08831fFAC85E858BCAfE85609Ba2).setModule(freeb));
+            require(HappyBox(happyBox).set(freeb,false,1));
+            return true;
+        }
+}
+
+
+contract Freebies {
+    
+    uint8 public code=7;
+    HappyBox public box;
+    priceList public prices;
+    
+    constructor(address _prcs, address _box) public{
+        prices=priceList(_prcs);
+        box=HappyBox(_box);
+    }
+    
+    function claim(address tkn)public returns(bool){
+        require(box.ship(tkn,prices.price(tkn),msg.sender));
+        return true;
+    } 
+
+  
+}
+
+
+contract Swapper_1_0_Factory{
+}
+  
+contract Happybox_1_0_Factory{
+    
+        uint public code=1;
+        
+        function install()public returns(bool){
+            HappyBox hb=new HappyBox();
+            require(hb.set(msg.sender,false,2));
+            require(Ownership(0x1660D644C164C779F41cE27110DdD55336800ED6).setOwner(msg.sender,address(hb)));
+            return true;
+        }
+        
+}
+
+
+contract MVMCertList {
+
+    address public master;
+    mapping(address => bool)public isFactory;
+    mapping(address => bool)public isModule;
+    address[] public factory;
+
+    constructor() public {
+        master=msg.sender;
+    }
+    
+    function setFactory(address tkn,bool val)public returns(bool){
+        require((msg.sender==master)||(isFactory[msg.sender]));
+        isFactory[tkn]=val;
+        if(val)factory.push(tkn);
+        return true;
+    }
+    
+    function setModule(address tkn)public returns(bool){
+        require(isFactory[msg.sender]||(msg.sender==master));
+        isModule[tkn]=true;
+        return true;
+    }
+    
+    function setMaster(address mstr)public returns(bool){
+        require((msg.sender==master)||(isFactory[msg.sender]));
+        master=mstr;
+        return true;
+    }
+    
+    function factories(uint i)public view returns(address,uint){
+        return (factories[i],factories.length);
+    }
+}
+
+contract Meta {
+
+    mapping(address => string)public meta;
+
+    function setMeta(address _contract,string memory val)public returns(bool){
+        meta[_contract]=val;
+        return true;
+    }
+    
+}
+
+contract Ownership {
+
+    mapping(address => address[])public owner;
+    mapping(address => bool)public isModule;
+    address public master;
+    
+    constructor () public { master=msg.sender; }
+    
+    function setOwner(address _owner,address happybox)public returns(bool){
+        require((isModule[msg.sender])||(msg.sender==master));
+        owner[_owner].push(happybox);
+        return true;
+    }
+    
+    function setMaster(address mstr)public returns(bool){
+        require((msg.sender==master)||(isModule[msg.sender]));
+        master=mstr;
+        return true;
+    }
+    
+    function setModule(address tkn)public returns(bool){
+        require((isModule[msg.sender])||(msg.sender==master));
+        isModule[tkn]=true;
+        return true;
+    }
+    
+    function owned(address _owner,uint i)public view returns(address,uint){
+        return (owner[_owner][i],owner[_owner].length);
+    }
+
+    
+}
+
