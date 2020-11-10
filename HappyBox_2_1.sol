@@ -37,7 +37,6 @@ contract HappyBox{
     //mode 1 = install module
     //mode 2 = set master
     //mode 3 = enable module
-    //mode 4 = pull token
     function set(address tkn,bool what,uint mode,uint id)public returns(bool){
          require((msg.sender==master)||(modules[msg.sender]));
         if(mode==1){
