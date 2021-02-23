@@ -1,6 +1,6 @@
 pragma solidity ^0.7.4;
 
-contract ShitFactory {
+contract DirectCurricularFactory {
     address private _collection;
     address public curricularECO=0xdA1Ec8F2Fb47e905079663bCEA69f1a2B0;
     
