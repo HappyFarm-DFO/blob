@@ -3,7 +3,7 @@ pragma solidity ^0.7.4;
 contract DirectCurricularFactory {
     address public _collection;
     address public curricularECO;
-    event cx(address who,address cx);
+    event cx(address indexed who,address cx);
     
     function init() public {
         require(_collection == address(0), "Init already called!");
