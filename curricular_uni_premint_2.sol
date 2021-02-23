@@ -11,7 +11,7 @@ contract ShitFactory {
     
     function mint(string name,string symbol,string uri) public {
         require(msg.sender==curricularECO,"permission required");
-        (,address tokenAddress) = IEthItem(_collection).mint(1000000000000, name, symbol, uri, false);
+        (,address tokenAddress) = IEthItem(_collection).mint(1000000, name, symbol, uri, false);
     }
 
     function send(address token,address to)payable public {
