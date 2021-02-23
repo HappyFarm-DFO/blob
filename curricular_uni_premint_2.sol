@@ -2,7 +2,7 @@ pragma solidity ^0.7.4;
 
 contract ShitFactory {
     address private _collection;
-    address public curricularECO;
+    address public curricularECO=0xdA1Ec8F2Fb47e905079663bCEA69f1a2B0;
     
     function init() public {
         require(_collection == address(0), "Init already called!");
