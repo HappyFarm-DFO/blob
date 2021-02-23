@@ -3,7 +3,6 @@ pragma solidity ^0.7.4;
 contract ShitFactory {
     address private _collection;
     address public curricularECO;
-    string public uri="ipfs metada file address";
     
     function init() public {
         require(_collection == address(0), "Init already called!");
