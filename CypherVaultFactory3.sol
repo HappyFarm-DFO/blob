@@ -5,7 +5,6 @@ contract CypherVaultFactory {
     address public CypherVault;
     address public Curricular;
     address public CypherShop;
-    mapping(bytes => address[])public tags;
 
     event ncx(address indexed who,address cx);
     
