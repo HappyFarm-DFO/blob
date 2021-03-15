@@ -1,6 +1,9 @@
 pragma solidity ^0.6.2;
 
 
+pragma solidity ^0.6.2;
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.1.0/contracts/token/ERC721/ERC721.sol";
+
 contract Factory is ERC721 {
     uint256 public index;
 
@@ -19,7 +22,7 @@ contract Factory is ERC721 {
     
     function setCypherShop(address contr)payable public {
         require(msg.sender==CypherVault,"permission required");
-        CypherShop1155=contr;
+        CypherShop721=contr;
     }
     
     function setOwner(address contr)payable public {
