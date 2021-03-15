@@ -32,7 +32,7 @@ contract Factory is ERC721 {
         _mint(CypherShop721, index);
         _setTokenURI(index, uri);
          emit ncx(operator,address(this),index);
-        ICurricular(Curricular).claim(operator);
+        ICurricular(Curricular).claim1(operator);
         return true;
     }
     
@@ -41,13 +41,13 @@ contract Factory is ERC721 {
         _mint(to, index);
         _setTokenURI(index, uri);
          emit ncx(operator,address(this),index);
-        ICurricular(Curricular).claim(operator);
+        ICurricular(Curricular).claim1(operator);
         return true;
     }
 }
 
 contract ICurricular {
-    function claim(address to)public {}
+    function claim1(address to)public {}
 }
 
 contract ICypherShop721{
