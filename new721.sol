@@ -1,7 +1,4 @@
 pragma solidity ^0.6.2;
-
-
-pragma solidity ^0.6.2;
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.1.0/contracts/token/ERC721/ERC721.sol";
 
 contract Factory is ERC721 {
@@ -51,4 +48,44 @@ contract Factory is ERC721 {
 
 contract ICurricular {
     function claim(address to)public {}
+}
+
+contract ICypherShop721{
+    mapping(address => mapping(uint256 => uint256))public prices;
+    mapping(address => mapping(uint256 => address payable))public creators;
+    event scx(address cx);
+        
+    function buy(address token,uint256 id)public payable returns(bool){
+        require(msg.value>=prices[token][id],"more honey!");
+        creators[token][id].transfer(msg.value);
+        Factory(token).Transfer(address(this), msg.sender,id);
+        emit scx(token);
+        return true;
+    }
+    
+    function setPrice(address payable author,address t,uint256 id,uint256 p) external{
+        require(CypherVaultFactory[msg.sender],"permission required");
+        prices[t][id]=p;
+        creators[t][id]=author;
+    }
+    
+    function changePrice(address t,uint256 id,uint256 p) external{
+        require(msg.sender==creators[t][id],"permission required");
+        prices[t][id]=p;
+    }
+    
+    address public CypherVault=0xdA1Ec8F2Fb47e905079663bCEA69f1a2B010f2D3;
+    mapping(address => bool) public CypherVaultFactory;
+    
+    function setOwner(address owner)payable public {
+        require(msg.sender==CypherVault,"permission required");
+        CypherVault=owner;
+    }
+    
+    function setCypherVaultFactory(address factory,bool b)payable public {
+        require(msg.sender==CypherVault,"permission required");
+        CypherVaultFactory[factory]=b;
+    }
+    
+
 }
