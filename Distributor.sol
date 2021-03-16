@@ -93,7 +93,7 @@ contract ICypherShop721{
 
 
 contract equityDistributor721 {
-    address public equities=0xdA1Ec8F2Fb47e905079663bCEA69f1a2B010f2D3;
+    address public equities=0x11948B6F6Eaa780f8166B1b76a2892Ff756967f0;
     address public CypherVault=0xdA1Ec8F2Fb47e905079663bCEA69f1a2B010f2D3;
       
       function setEquities(address contr)public{
