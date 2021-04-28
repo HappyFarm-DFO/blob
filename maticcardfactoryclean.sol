@@ -14,20 +14,10 @@ import "../../utils/Address.sol";
 
 
 contract Collections{
-    
-        address[] public collections;
-        mapping(address => bool) public CypherVaultFactory;
-        address payable public CypherVault=0x00936EFE90dEdaB2a6a623BF90Bee10AD6910a8b;
-        mapping(address => address) public owners;
-        mapping(address => address[]) public ownerOf;
-        
 
     
     function addCollection(address creator,address collection)public{
-            require(CypherVaultFactory[msg.sender],"permission required");
-            collections.push(collection);
-            owners[collection]=creator;
-            ownerOf[creator].push(collection);
+          
     }
     
    
@@ -35,8 +25,7 @@ contract Collections{
     
 
     function setCypherVaultFactory(address factory,bool b)payable public {
-        require(((msg.sender==CypherVault)||(CypherVaultFactory[msg.sender])),"permission required");
-        CypherVaultFactory[factory]=b;
+      
     }
     
 }
@@ -53,23 +42,18 @@ contract Collections{
     
     function createCollection(string memory uri) public returns(bool) {
         ERC1155 collection=new ERC1155(msg.sender,uri);
-        Collections(Collection).addCollection(msg.sender,address(collection));
+        //Collections(Collection).addCollection(msg.sender,address(collection));
         ICypherCardShop1155(CypherCardShop).setCypherVaultFactory(address(collection),true);
         tracker(Tracker).setCypherVaultFactory(address(collection),true);
         return true;
         
     }
     
-    function setOwner(address owner) public {
+    function setOwner(address addr,bool b) public {
         require(msg.sender==CypherVault,"permission required");
-        CypherVault=owner;
+        if(b)CypherVault=addr;
+        if(!b)Collection=addr;
     }
-    
-    function setCollection(address collection) public {
-        require(msg.sender==CypherVault,"permission required");
-        Collection=collection;
-    }
-
 
 }
  
@@ -83,38 +67,15 @@ contract Collections{
 contract tracker {
     
 
-    struct nft {
-        address cx;
-        uint256 id;
-    }
-  
-    mapping(address => nft[]) public ownedList;
-
-    
-     mapping(address => mapping(address => mapping(uint256 => bool))) public owned;
     
     function track(address operator,address cx,uint256 id)public{
-         require(CypherVaultFactory[msg.sender],"permission required");
-         if(!owned[operator][cx][id]){
-         owned[operator][cx][id]=true;
-         ownedList[operator].push(nft(cx,id));
-         if(operator!=Dev)
-         if(IERC20(Cybs).balanceOf(address(this))>=1000000000000000000)
-         IERC20(Cybs).transfer(operator,1000000000000000000);
-         }
+       
+         
     }
-    
-     mapping(address => bool) public CypherVaultFactory;
-     address payable public CypherVault=0x00936EFE90dEdaB2a6a623BF90Bee10AD6910a8b;
-     address payable public Cybs=0x1EcB0D257c3D8b5Ab52880b359558E363971848d;
-     address payable public Dev=0x00936EFE90dEdaB2a6a623BF90Bee10AD6910a8b;
-  
-
    
     
     function setCypherVaultFactory(address factory,bool b)payable public {
-        require(((msg.sender==CypherVault)||(CypherVaultFactory[msg.sender])),"permission required");
-        CypherVaultFactory[factory]=b;
+       
     }
 
     
@@ -159,20 +120,24 @@ contract ERC1155 is Context, ERC165,  IERC1155, IERC1155MetadataURI  {
         require(permissioned[msg.sender],"permission required");
         buffer memory buf= waiting[id];
         index++;
-        _balances[index][CypherShop] += 95;
-        _balances[index][buf.author] += 3;
-        _balances[index][Curator] += 1;
-        _balances[index][Dev] += 1;
-        emit TransferSingle(address(this), address(this), CypherShop, index, 95);
-        emit TransferSingle(address(this), address(this), buf.author, index, 3);
-        emit TransferSingle(address(this), address(this), Curator, index, 1);
-        emit TransferSingle(address(this), address(this), Dev, index, 1);
+        _mint(CypherShop, index, 95, "");
+        _mint(buf.author, index, 3, "");
+        _mint(Curator, index, 1, "");
+        _mint(Dev, index, 1, "");
+        //_balances[index][CypherShop] += 95;
+        //_balances[index][buf.author] += 3;
+        //_balances[index][Curator] += 1;
+        //_balances[index][Dev] += 1;
+        //emit TransferSingle(address(this), address(this), CypherShop, index, 95);
+        //emit TransferSingle(address(this), address(this), buf.author, index, 3);
+        //emit TransferSingle(address(this), address(this), Curator, index, 1);
+        //emit TransferSingle(address(this), address(this), Dev, index, 1);
         _uri[index]=buf.uri;
         totalSupply[index]=100;
         creator[index]=buf.author;
-        tracker(Tracker).track(Dev,address(this),index);
-        tracker(Tracker).track(buf.author,address(this),index);
-        tracker(Tracker).track(Curator,address(this),index);
+        //tracker(Tracker).track(Dev,address(this),index);
+        //tracker(Tracker).track(buf.author,address(this),index);
+        //tracker(Tracker).track(Curator,address(this),index);
         ICypherCardShop1155(CypherShop).setPrice(payable(Curator),payable(buf.author),address(this),index);
         emit ncx(buf.author,address(this),index);
         ICurricularFactory(Curricular).claim(buf.author);
@@ -183,20 +148,24 @@ contract ERC1155 is Context, ERC165,  IERC1155, IERC1155MetadataURI  {
     function mintNow(string memory name,string memory symbol,uint256 amount,string memory uri) public returns(bool){
          require(permissioned[msg.sender],"permission required");
         index++;
-        _balances[index][CypherShop] += 95;
-        _balances[index][msg.sender] += 3;
-        _balances[index][Curator] += 1;
-        _balances[index][Dev] += 1;
-        emit TransferSingle(address(this), address(this), CypherShop, index, 95);
-        emit TransferSingle(address(this), address(this), msg.sender, index, 3);
-        emit TransferSingle(address(this), address(this), Curator, index, 1);
-        emit TransferSingle(address(this), address(this), Dev, index, 1);
+        _mint(CypherShop, index, 95, "");
+        _mint(msg.sender, index, 3, "");
+        _mint(Curator, index, 1, "");
+        _mint(Dev, index, 1, "");
+        //_balances[index][CypherShop] += 95;
+        //_balances[index][msg.sender] += 3;
+        //_balances[index][Curator] += 1;
+        //_balances[index][Dev] += 1;
+        //emit TransferSingle(address(this), address(this), CypherShop, index, 95);
+        //emit TransferSingle(address(this), address(this), msg.sender, index, 3);
+        //emit TransferSingle(address(this), address(this), Curator, index, 1);
+        //emit TransferSingle(address(this), address(this), Dev, index, 1);
         _uri[index]=uri;
         totalSupply[index]=100;
         creator[index]=msg.sender;
-        tracker(Tracker).track(Dev,address(this),index);
-        tracker(Tracker).track(msg.sender,address(this),index);
-        tracker(Tracker).track(Curator,address(this),index);
+        //tracker(Tracker).track(Dev,address(this),index);
+        //tracker(Tracker).track(msg.sender,address(this),index);
+        //tracker(Tracker).track(Curator,address(this),index);
         emit ncx(Curator,address(this),index);
         ICurricularFactory(Curricular).claim(Curator);
         return true;
@@ -433,7 +402,7 @@ contract ERC1155 is Context, ERC165,  IERC1155, IERC1155MetadataURI  {
         address operator = _msgSender();
 
   
-
+        tracker(Tracker).track(account,address(this),index);
         _balances[id][account] = _balances[id][account].add(amount);
         emit TransferSingle(operator, address(0), account, id, amount);
 
@@ -517,41 +486,21 @@ contract ERC1155 is Context, ERC165,  IERC1155, IERC1155MetadataURI  {
 
 
 contract ICypherCardShop1155{
-    address payable public CypherVault=0x00936EFE90dEdaB2a6a623BF90Bee10AD6910a8b;
-    address public Tracker=0x4e923a2901C6366648179dacEDc5F0711dE9AEce;
-    mapping(address => bool) public CypherVaultFactory;
-    mapping(address =>  mapping(uint256 => uint256))public prices;
-    mapping(address => mapping(uint256 => address payable))public creators;
-    mapping(address => mapping(uint256 => address payable))public curators;
-    //event scx(address cx);
-    uint256 public shopType=2;
-    uint256 public startprice=10000000000000000000;
-    uint256 public increment=500000000000000000;
+   
         
     function buy(address token,uint256 id,uint256 amount)public payable returns(bool){
-        prices[token][id]+=amount*increment;
-        require(msg.value>=prices[token][id]*amount,"more honey!");
-        uint256 t=msg.value/3;
-        CypherVault.transfer(t);
-        curators[token][id].transfer(t);
-        creators[token][id].transfer(msg.value-(t*2));
-        ERC1155(token).safeTransferFrom(address(this),msg.sender,id,amount,"");
-        tracker(Tracker).track(msg.sender,token,id);
+      
         return true;
     }
     
     function setPrice(address payable curator,address payable author,address vault,uint256 id) external{
-        require(CypherVaultFactory[msg.sender],"permission required");
-        prices[vault][id]=startprice;
-        curators[vault][id]=curator;
-        creators[vault][id]=author;
+      
     }
    
 
     
     function setCypherVaultFactory(address factory,bool b)payable public {
-        require(((msg.sender==CypherVault)||(CypherVaultFactory[msg.sender])),"permission required");
-        CypherVaultFactory[factory]=b;
+      
     }
     
 
@@ -574,6 +523,3 @@ interface IERC20 {
     function transfer(address recipient, uint256 amount) external returns (bool);
 
 }
-
-
-
